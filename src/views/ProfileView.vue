@@ -29,7 +29,7 @@
 
               <div class="ms-2 edit">
                 <button v-if="!isEdit" class="btn btn-success" @click="isEdit=true">Edit</button>
-                <button v-else class="btn btn-danger" @click="createOrUpdateUser">Save</button>
+                <button v-else class="btn btn-danger" @click="createOrUpdateUser">Simpan</button>
               </div>
             </div>
           </div>
@@ -41,7 +41,7 @@
       <div class="col-12">
         <div class="p-4 rounded list-wrapper d-flex mb-4">
           <div class="d-flex detail">
-            <p>win rate</p>
+            <p>Persentasi Kemenangan</p>
             <p class="bold">0%</p>
           </div>
           <div class="detail">
@@ -52,7 +52,7 @@
               placeholder="Location"
               v-model="user.location">
             <div v-else class="d-flex">
-              <p>Location</p>
+              <p>Lokasi</p>
               <p class="bold">{{ user.location }}</p>
             </div>
           </div>
@@ -64,8 +64,24 @@
               placeholder="Date of birth"
               v-model="user.dob">
             <div v-else class="d-flex">
-              <p>DoB</p>
+              <p>Tanggal Lahir</p>
               <p class="bold">{{ user.dob }}</p>
+            </div>
+          </div>
+          <div class="detail">
+            <div class="d-flex">
+              <p>Usia</p>
+              <p class="bold">{{ getAge(user.dob) }}</p>
+            </div>
+          </div>
+          <div class="detail">
+            <select v-if="isEdit" v-model="user.gender" class="form-select">
+              <option value="1">Laki - laki</option>
+              <option value="2">Perempuan</option>
+            </select>
+            <div v-else class="d-flex">
+              <p>Jenis Kelamin</p>
+              <p class="bold">{{ getGender(user.gender) }}</p>
             </div>
           </div>
         </div>
@@ -75,18 +91,291 @@
     <!-- Experience -->
     <div class="row mx-auto mt-4">
       <div class="col-12">
-        <p class="section">Experience</p>
+        <p class="section">Pengalaman</p>
+        <div class="p-4 rounded list-wrapper d-flex mb-4">
+          <div class="detail">
+            <select v-if="isEdit" v-model="experience.howLong" class="form-select">
+              <option value="" selected disabled>Lama Bermain Bulutangkis</option>
+              <option value="1">&lt; 1 Tahun</option>
+              <option value="2">1 - 5 Tahun</option>
+              <option value="3">> 5 Tahun</option>
+            </select>
+            <div v-else class="d-flex">
+              <p>Lama Bermain Bulutangkis</p>
+              <p class="bold">{{ howLongMapping(experience.howLong) }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <input
+              v-if="isEdit"
+              type="number"
+              class="form-control"
+              placeholder="Bermain Dalam Seminggu"
+              v-model="experience.playPerWeek">
+            <div v-else class="d-flex">
+              <p>Bermain Dalam Seminggu</p>
+              <p class="bold">{{ experience.playPerWeek }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <select v-if="isEdit" v-model="experience.isCompe" class="form-select">
+              <option value="" selected disabled>Bermain Secara</option>
+              <option value="0">Hiburan</option>
+              <option value="1">Kompetitif</option>
+            </select>
+            <div v-else class="d-flex">
+              <p>Bermain Secara</p>
+              <p class="bold">{{ compeMapping(experience.isCompe) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mx-auto mt-4">
+      <div class="col-12">
+        <p class="section">Fisik</p>
         <div class="p-4 rounded list-wrapper d-flex mb-4">
           <div class="detail">
             <input
               v-if="isEdit"
-              type="text"
+              type="number"
               class="form-control"
-              placeholder="Play per Week"
-              v-model="experience.playPerWeek">
+              placeholder="Tinggi Bada (Cm)"
+              v-model="fisik.height">
             <div v-else class="d-flex">
-              <p>Play per Week</p>
-              <p class="bold">{{ experience.playPerWeek }}</p>
+              <p>Tinggi Badan</p>
+              <p class="bold">{{ fisik.height }} Cm</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <input
+              v-if="isEdit"
+              type="number"
+              class="form-control"
+              placeholder="Berat Badan (Cm)"
+              v-model="fisik.weight">
+            <div v-else class="d-flex">
+              <p>Berat Badan</p>
+              <p class="bold">{{ fisik.weight }} Cm</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label class="form-label">Kekuatan</label>
+              <input v-model="fisik.strenght" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Kekuatan Fisik</p>
+              <p class="bold">{{ fisik.strenght }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label for="customRange1" class="form-label">Daya Tahan</label>
+              <input v-model="fisik.endurance" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Daya Tahan</p>
+              <p class="bold">{{ fisik.endurance }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <input v-model="fisik.playTime" placeholder="Rata - rata Lama Bermain (jam)" type="number" class="form-control">
+            </div>
+            <div v-else class="d-flex">
+              <p>Rata - rata Lama Bermain</p>
+              <p class="bold">{{ fisik.playTime }} Jam</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row mx-auto mt-4">
+      <div class="col-12">
+        <p class="section">Kemampuan Teknikal</p>
+        <div class="p-4 rounded list-wrapper d-flex mb-4">
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label class="form-label">Pukulan Forehand</label>
+              <input v-model="technical.forehand" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Pukulan Forehand</p>
+              <p class="bold">{{ technical.forehand }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label class="form-label">Pukulan Backhand</label>
+              <input v-model="technical.backhand" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Pukulan Backhand</p>
+              <p class="bold">{{ technical.backhand }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label class="form-label">Pukulan Service</label>
+              <input v-model="technical.service" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Pukulan Service</p>
+              <p class="bold">{{ technical.service }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label class="form-label">Pengembalian Bola</label>
+              <input v-model="technical.ballReturn" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Pengembalian Bola</p>
+              <p class="bold">{{ technical.ballReturn }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label class="form-label">Pukulan Smash</label>
+              <input v-model="technical.smash" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Pukulan Smash</p>
+              <p class="bold">{{ technical.smash }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label class="form-label">Pukulan Drop</label>
+              <input v-model="technical.drop" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Pukulan Drop</p>
+              <p class="bold">{{ technical.drop }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label class="form-label">Refleks dan Kecepatan</label>
+              <input v-model="technical.speed" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Refleks dan Kecepatan</p>
+              <p class="bold">{{ technical.speed }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label class="form-label">Akurasi</label>
+              <input v-model="technical.acuration" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Akurasi</p>
+              <p class="bold">{{ technical.acuration }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label class="form-label">Pemahaman Peraturan</label>
+              <input v-model="technical.rule" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Pemahaman Peraturan</p>
+              <p class="bold">{{ technical.rule }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mx-auto mt-4">
+      <div class="col-12">
+        <p class="section">Perlengkapan</p>
+        <div class="p-4 rounded list-wrapper d-flex mb-4">
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label class="form-label">Kualitas Raket</label>
+              <input v-model="equipment.racket" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Kualitas Raket</p>
+              <p class="bold">{{ equipment.racket }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label class="form-label">Kualitas Senar</label>
+              <input v-model="equipment.strings" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Kualitas Senar</p>
+              <p class="bold">{{ equipment.strings }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label class="form-label">Kualitas Sepatu</label>
+              <input v-model="equipment.shoes" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Kualitas Sepatu</p>
+              <p class="bold">{{ equipment.shoes }}</p>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div v-if="isEdit" class="input-wrapper">
+              <label class="form-label">Kualitas Pakaian</label>
+              <input v-model="equipment.shirt" min="0" max="5" type="range" class="form-range">
+            </div>
+            <div v-else class="d-flex">
+              <p>Kualitas Pakaian</p>
+              <p class="bold">{{ equipment.shirt }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mx-auto mt-4">
+      <div class="col-12">
+        <p class="section">Prestasi Sebelumnya</p>
+        <div class="p-4 rounded list-wrapper d-flex mb-4">
+          <div class="detail">
+            <div class="d-flex">
+              <p>Berpartisipasi dalam Turnamen</p>
+              <input
+                :disabled="!isEdit"
+                class="form-check-input"
+                type="checkbox" v-model="achievements.tournaments" id="flexCheckDefault">
+            </div>
+          </div>
+          <div class="detail">
+            <div class="d-flex">
+              <p>Bergambung dalam Club</p>
+              <input
+                :disabled="!isEdit"
+                class="form-check-input"
+                type="checkbox" v-model="achievements.club" id="flexCheckDefault">
             </div>
           </div>
         </div>
@@ -105,10 +394,40 @@ export default {
     return {
       uploadValue: 0,
       user: {
-        displayName: ''
+        displayName: '',
       },
       experience: {
-        playPerWeek: ''
+        howLong: '',
+        playPerWeek: '',
+        isCompe: ''
+      },
+      fisik: {
+        height: '',
+        weight: '',
+        strenght: null,
+        endurance: null,
+        playTime: ''
+      },
+      technical: {
+        forehand: null,
+        backhand: null,
+        service: null,
+        ballReturn: null,
+        smash: null,
+        drop: null,
+        speed: null,
+        acuration: null,
+        rule: null
+      },
+      equipment: {
+        racket: null,
+        strings: null,
+        shoes: null,
+        shirt: null
+      },
+      achievements: {
+        tournaments: false,
+        club: false
       },
       isEdit: false,
       imageProfile: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
@@ -137,10 +456,20 @@ export default {
     async createOrUpdateUser() {
       try {
         const userRef = doc(this.$db, "users", this.user.uid);
+
         await setDoc(userRef, {
           location: this.user.location,
           dob: this.user.dob,
-          photo: this.user.photo
+          photo: this.user.photo,
+          gender: this.user.gender,
+          experience: this.experience,
+          fisik: this.fisik,
+          technical: this.technical,
+          equipment: this.equipment,
+          achievements: this.achievements,
+          scrore: 0,
+          isFindMatch: false,
+          displayName: this.user.displayName
         }, { merge: true })
 
         const auth = getAuth()
@@ -157,20 +486,59 @@ export default {
       try {
         const docRef = doc(this.$db, "users", userId)
         const docSnap = await getDoc(docRef)
-        console.log(docSnap)
 
         if (docSnap.exists()) {
-          console.log("Document data:", docSnap.data());
           this.user = {
             ...this.user,
-            ...docSnap.data()
+            gender: docSnap.data().gender,
+            dob: docSnap.data().dob,
+            location: docSnap.data().location,
+            photo: docSnap.data().photo,
+            score: docSnap.data().score,
           }
+          this.experience = docSnap.data().experience
+          this.fisik = docSnap.data().fisik
+          this.technical = docSnap.data().technical
+          this.equipment = docSnap.data().equipment
+          this.achievements = docSnap.data().achievements
         } else {
           console.log("No such document!");
         }
       } catch (e) {
         console.error("Error getting user document: ", e);
       }
+    },
+    getAge(date) {
+      const birthdate = new Date(date)
+      const currentDate = new Date()
+
+      const ageInMilliseconds = currentDate - birthdate;
+
+      const ageInYears = ageInMilliseconds / (1000 * 60 * 60 * 24 * 365.25)
+      return Math.floor(ageInYears);
+    },
+    getGender(genderId) {
+      const data = {
+        1: 'Laki - laki',
+        2: 'Perempuan'
+      }
+      return data[genderId]
+    },
+    howLongMapping(id) {
+      const data = {
+        1: '< 1 Tahun',
+        2: '1 - 5 Tahun',
+        3: '> 5 Tahun'
+      }
+
+      return data[id]
+    },
+    compeMapping(isCompe) {
+      const data = {
+        0: 'Hiburan',
+        1: 'Kompetitif'
+      }
+      return data[isCompe]
     }
   },
   mounted() {
@@ -237,7 +605,7 @@ export default {
   
       p {
         margin: 0;
-        font-size: 18px;
+        font-size: 14px;
       }
 
       .d-flex {

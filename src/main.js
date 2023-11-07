@@ -20,7 +20,8 @@ const firebaseConfig = {
   storageBucket: "smash-match-90d3f.appspot.com",
   messagingSenderId: "305665707968",
   appId: "1:305665707968:web:25d6667fa604189200c225",
-  measurementId: "G-2FFKXYJDGK"
+  measurementId: "G-2FFKXYJDGK",
+  databaseURL: "https://smash-match-90d3f-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
 const firebse = initializeApp(firebaseConfig)

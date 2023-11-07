@@ -4,53 +4,67 @@
       <h1>Find a Match</h1>
       <div class="wrapper">
         <div class="mb-3">
-          <label for="location" class="form-label">Location</label>
-          <select v-model="selectedLocation" class="form-select" id="location">
-            <option value="location1">Location 1</option>
-            <option value="location2">Location 2</option>
-            <option value="location3">Location 3</option>
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label for="location" class="form-label">Venue</label>
+          <label for="location" class="form-label">Pilih Tempat</label>
           <select v-model="selectedVenue" class="form-select" id="location">
-            <option value="location1">Gor 1</option>
-            <option value="location2">Gor 1</option>
-            <option value="location3">Gor 1</option>
+            <option value="gor-1">Gor 1</option>
+            <option value="gor3">Gor 1</option>
+            <option value="gor3">Gor 1</option>
           </select>
         </div>
         
-        <button type="submit" class="btn btn-primary mt-3" :disabled="loading" v-on:click="findMatch()">
-          <span v-if="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <button type="submit" class="btn btn-primary mt-3" :disabled="isFindind" v-on:click="findMatch()">
+          <span v-if="isFindind" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
           <span v-else>Find Match</span>
         </button>
-      </div>
-      <div v-if="matchFound" class="alert alert-success mt-3">
-        Match found! Display your result here.
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { doc, runTransaction } from "firebase/firestore";
+import { useLoginStore } from '../stores/login';
+import { useMatchStore } from "../stores/match";
+
 export default {
   data() {
     return {
-      selectedLocation: '',
-      selectedVenue: '',
-      loading: false,
-      matchFound: false,
+      selectedVenue: 'gor-1',
+      matchData: []
     };
   },
   methods: {
-    findMatch() {
-      // Simulate loading with a timeout
-      this.loading = true
-      this.matchFound = true
-      this.loading = false
+    async findMatch() {
+      try {
+        const matchStore = useMatchStore()
+        matchStore.isFinding(true)
+        const loginStore = useLoginStore()
+        const docRef = doc(this.$db, "match-queue", this.selectedVenue)
+
+        // Menggunakan transaksi untuk memastikan operasi aman
+        await runTransaction(this.$db, async (transaction) => {
+          const docSnap = await transaction.get(docRef);
+          const data = docSnap.data() || {};
+
+          // Menambahkan pemain ke dalam antrian atau membuat antrian jika belum ada
+          data[loginStore.userData.user.uid] = { score: 100 };
+          transaction.set(docRef, data);
+
+          return data;
+        });
+
+      } catch (e) {
+        this.loading = false
+        console.error("Error creating or updating document: ", e);
+      }
     }
   },
+  computed: {
+    isFindind() {
+      const matchStore = useMatchStore()
+      return matchStore.isFindMatch
+    }
+  }
 }
 </script>
 
@@ -68,6 +82,7 @@ export default {
     transform: translate(-50%, -50%);
 
     .wrapper {
+      margin-top: 2rem;
       min-width: 100%;
       display: flex;
       flex-direction: column;

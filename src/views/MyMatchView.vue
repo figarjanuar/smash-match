@@ -34,7 +34,7 @@
       <div class="row">
         <div class="col-lg-12">
           <div class="upcoming">
-            <h3>Upcoming Match</h3>
+            <h3>Match History</h3>
           </div>
         </div>
 
