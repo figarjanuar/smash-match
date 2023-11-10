@@ -19,11 +19,12 @@
 </template>
 
 <script>
-import { doc, onSnapshot, runTransaction } from 'firebase/firestore';
-import { useMatchStore } from '../stores/match';
-import IconListMatch from '../components/icons/IconListMatch.vue';
-import IconFindMatch from '../components/icons/IconFindMatch.vue';
-import IconProfile from '../components/icons/IconProfile.vue';
+import { doc, onSnapshot, runTransaction, setDoc } from 'firebase/firestore'
+import { useMatchStore } from '../stores/match'
+import IconListMatch from '../components/icons/IconListMatch.vue'
+import IconFindMatch from '../components/icons/IconFindMatch.vue'
+import IconProfile from '../components/icons/IconProfile.vue'
+import { useLoginStore } from '../stores/login'
 
 export default {
   components: { IconListMatch, IconFindMatch, IconProfile },
@@ -34,48 +35,64 @@ export default {
   },
   methods: {
     initMatch() {
+      const loginStore = useLoginStore();
       const queueDocRef = doc(this.$db, "match-queue", 'gor-1');
-      onSnapshot(queueDocRef, async (doc) => {
-        const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
-        const data = doc.data();
+
+      onSnapshot(queueDocRef, async (snapshot) => {
+        const source = snapshot.metadata.hasPendingWrites ? "Local" : "Server";
+        const data = snapshot.data();
 
         if (data) {
-          // Mengambil pemain yang siap untuk di-cocokkan
           const players = Object.keys(data);
+          const player1 = data[loginStore.userData.user.uid];
+          players.splice(players.indexOf(loginStore.userData.user.uid), 1);
 
-          if (players.length >= 2) {
-            // Sort pemain berdasarkan skor
-            players.sort((a, b) => data[a].score - data[b].score);
+          for (const player of players) {
+            const diffScore = Math.abs(player1.score - data[player].score);
 
-            // Cek apakah selisih skor antara pemain terdekat cukup kecil (<= 5)
-            if (data[players[1]].score - data[players[0]].score <= 5) {
-              // Pertandingan ditemukan, buat pertandingan 1vs1
-              const player1 = players[0];
-              const player2 = players[1];
-
-              console.log(`Memulai pertandingan antara ${player1} dan ${player2}`);
+            if (diffScore <= 2 && player1.gender === data[player].gender) {
+              console.log(`Starting match between ${player1} and ${player}`);
               const matchStore = useMatchStore()
-              matchStore.isFinding(false)
-              // Menggunakan transaksi untuk menghapus pemain dari antrian
+
               await runTransaction(this.$db, async (transaction) => {
-                const docSnap = await transaction.get(queueDocRef);
+                const docSnap = await transaction.get(queueDocRef, { snapshot: true });
                 const updatedData = docSnap.data();
-                delete updatedData[player1];
-                delete updatedData[player2];
-                transaction.set(queueDocRef, updatedData);
-              });
+
+                if (updatedData) {
+                  delete updatedData[player1];
+                  delete updatedData[player];
+                  transaction.set(queueDocRef, updatedData);
+                }
+              })
+
+              await setDoc(doc(this.$db, "match-list", loginStore.userData.user.uid), {
+                venue: player1.venue,
+                date: new Date(),
+                opponent: data[player],
+                status: 0
+              })
+
+              matchStore.isFinding(false);
             }
           }
         }
         console.log(source, " data: ", data);
-      })
+      });
+    },
+    async sortStringsAsc(a, b) {
+      const result = a.localeCompare(b);
+
+      if (result < 0) {
+        return [a, b];
+      } else if (result > 0) {
+        return [b, a];
+      } else {
+        return [a, b]; // or [b, a], since they are equal
+      }
     }
   },
   mounted() {
     this.initMatch()
-  },
-  beforeMount() {
-    console.log('wkwkw');
   }
 }
 </script>

@@ -3,7 +3,7 @@
     <div class="wrapper">
       <div class="row mb-5">
         <div class="col-lg-12">
-          <div @click="$router.push({ name: 'match-detail', params: {matchId: 12} })" class="widget-next-match">
+          <div @click="this.$router.push({ name: 'match-detail', params: {matchId: 12} })" class="widget-next-match">
             <div class="widget-title mb-3">
               <h3>Next Match</h3>
             </div>

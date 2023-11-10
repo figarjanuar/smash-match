@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { doc, runTransaction } from "firebase/firestore";
+import { doc, getDoc, runTransaction, setDoc } from "firebase/firestore";
 import { useLoginStore } from '../stores/login';
 import { useMatchStore } from "../stores/match";
 
@@ -30,32 +30,45 @@ export default {
   data() {
     return {
       selectedVenue: 'gor-1',
-      matchData: []
+      matchData: [],
+      user: {}
     };
   },
   methods: {
     async findMatch() {
+      const matchStore = useMatchStore()
       try {
-        const matchStore = useMatchStore()
         matchStore.isFinding(true)
         const loginStore = useLoginStore()
-        const docRef = doc(this.$db, "match-queue", this.selectedVenue)
 
-        // Menggunakan transaksi untuk memastikan operasi aman
-        await runTransaction(this.$db, async (transaction) => {
-          const docSnap = await transaction.get(docRef);
-          const data = docSnap.data() || {};
+        await this.getUserByUserId(loginStore.userData.user.uid)
 
-          // Menambahkan pemain ke dalam antrian atau membuat antrian jika belum ada
-          data[loginStore.userData.user.uid] = { score: 100 };
-          transaction.set(docRef, data);
-
-          return data;
-        });
+        const matchRef = doc(this.$db, "match-queue", this.selectedVenue)
+        await setDoc(matchRef, {
+          [loginStore.userData.user.uid]: { ...this.user }
+        }, { merge: true })
 
       } catch (e) {
-        this.loading = false
+        matchStore.isFinding(false)
         console.error("Error creating or updating document: ", e);
+      }
+    },
+    async getUserByUserId(userId) {
+      try {
+        const docRef = doc(this.$db, "users", userId)
+        const docSnap = await getDoc(docRef)
+
+        if (docSnap.exists()) {
+          this.user = {
+            gender: docSnap.data().gender,
+            score: docSnap.data().score,
+            venue: this.selectedVenue
+          }
+        } else {
+          console.log("No such document!");
+        }
+      } catch (e) {
+        console.error("Error getting user document: ", e);
       }
     }
   },

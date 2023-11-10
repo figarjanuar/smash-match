@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
 
 export default {
   data() {
@@ -41,18 +41,9 @@ export default {
       pass: '',
       loading: false,
       matchFound: false,
-    };
+    }
   },
   methods: {
-    findMatch() {
-      // Simulate loading with a timeout
-      this.loading = true;
-      setTimeout(() => {
-        // Perform your match-finding logic here (replace with actual logic)
-        this.loading = false;
-        this.matchFound = true;
-      }, 2000); // Simulate a 2-second delay
-    },
     register() {
       const auth = getAuth();
       createUserWithEmailAndPassword(auth, this.email, this.pass)
@@ -66,8 +57,8 @@ export default {
           this.$router.push({ name: 'profile' })
         })
         .catch((error) => {
-          console.log(error);
-        });
+          console.log(error)
+        })
     },
   }
 }

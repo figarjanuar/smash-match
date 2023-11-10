@@ -21,7 +21,7 @@
                   v-if="isEdit"
                   type="text"
                   class="form-control"
-                  placeholder="Location"
+                  placeholder="Name"
                   v-model="user.displayName">
                 <h4 v-else>{{ user.displayName }}</h4>
                 <span>{{ user.point }} {{ user.rank }}</span>
@@ -167,11 +167,11 @@
           <div class="detail">
             <div v-if="isEdit" class="input-wrapper">
               <label class="form-label">Kekuatan</label>
-              <input v-model="fisik.strenght" min="0" max="5" type="range" class="form-range">
+              <input v-model="fisik.strength" min="0" max="5" type="range" class="form-range">
             </div>
             <div v-else class="d-flex">
               <p>Kekuatan Fisik</p>
-              <p class="bold">{{ fisik.strenght }}</p>
+              <p class="bold">{{ fisik.strength }}</p>
             </div>
           </div>
 
@@ -283,11 +283,11 @@
           <div class="detail">
             <div v-if="isEdit" class="input-wrapper">
               <label class="form-label">Akurasi</label>
-              <input v-model="technical.acuration" min="0" max="5" type="range" class="form-range">
+              <input v-model="technical.accuracy" min="0" max="5" type="range" class="form-range">
             </div>
             <div v-else class="d-flex">
               <p>Akurasi</p>
-              <p class="bold">{{ technical.acuration }}</p>
+              <p class="bold">{{ technical.accuracy }}</p>
             </div>
           </div>
 
@@ -388,6 +388,7 @@
 import { getAuth, updateProfile } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore"
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useSawStore } from "../stores/saw";
 
 export default {
   data() {
@@ -402,28 +403,28 @@ export default {
         isCompe: ''
       },
       fisik: {
-        height: '',
-        weight: '',
-        strenght: null,
-        endurance: null,
+        height: null,
+        weight: null,
+        strength: 0,
+        endurance: 0,
         playTime: ''
       },
       technical: {
-        forehand: null,
-        backhand: null,
-        service: null,
-        ballReturn: null,
-        smash: null,
-        drop: null,
-        speed: null,
-        acuration: null,
-        rule: null
+        forehand: 0,
+        backhand: 0,
+        service: 0,
+        ballReturn: 0,
+        smash: 0,
+        drop: 0,
+        speed: 0,
+        accuracy: 0,
+        rule: 0
       },
       equipment: {
-        racket: null,
-        strings: null,
-        shoes: null,
-        shirt: null
+        racket: 0,
+        strings: 0,
+        shoes: 0,
+        shirt: 0
       },
       achievements: {
         tournaments: false,
@@ -455,7 +456,20 @@ export default {
     },
     async createOrUpdateUser() {
       try {
-        const userRef = doc(this.$db, "users", this.user.uid);
+        const userRef = doc(this.$db, "users", this.user.uid)
+
+        const sawStore = useSawStore()
+        const userData = {
+          experience: this.experience,
+          fisik: this.fisik,
+          technical: this.technical,
+          equipment: this.equipment,
+          achievements: {
+            tournaments: this.achievements.tournaments ? 1 : 2,
+            club: this.achievements.club ? 1 : 2
+          },
+        }
+        const score = sawStore.generateScore(userData)
 
         await setDoc(userRef, {
           location: this.user.location,
@@ -467,7 +481,7 @@ export default {
           technical: this.technical,
           equipment: this.equipment,
           achievements: this.achievements,
-          scrore: 0,
+          score,
           isFindMatch: false,
           displayName: this.user.displayName
         }, { merge: true })
