@@ -37,24 +37,20 @@
         <h5 class="mb-3 text-center">Detail Pertandingan</h5>
 
         <div class="d-flex">
-          <div class="desc">Area</div>
-          <div class="val">Bogor</div>
-        </div>
-        <div class="d-flex">
           <div class="desc">Lapangan</div>
-          <div class="val">Gor PGRI</div>
+          <div class="val">{{ gorMapping(match.venue) }}</div>
         </div>
         <div class="d-flex">
           <div class="desc">Tanggal</div>
-          <div class="val">6 Nov 2023</div>
+          <div class="val">{{ match.formatedDate }}</div>
         </div>
         <div class="d-flex">
           <div class="desc">Status</div>
-          <div class="val">Upcoming</div>
+          <div class="val text-uppercase">{{ match.status }}</div>
         </div>
       </div>
 
-      <div class="match-wrapper p-3">
+      <div v-if="match.status === 'berlangsung'" class="match-wrapper p-3">
         <h5 class="mb-3 text-center">Sroce</h5>
         <div class="d-flex add-wrapper">
           <button @click="addScore" class="btn btn-success">+</button>
@@ -77,7 +73,7 @@
 </template>
 
 <script>
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import CardComponent from '../components/CardComponent.vue';
 import { useLoginStore } from '../stores/login';
 
@@ -104,6 +100,13 @@ export default {
     addScore() {
       this.score.push({me: null, opponent: null})
     },
+    gorMapping(id) {
+      const gor = {
+        'gor-1': 'GOR Dramaga'
+      }
+
+      return gor[id]
+    },
     removeScore() {
       this.score.pop()
     },
@@ -119,20 +122,19 @@ export default {
         const matchListData = matchListSnap.data().matches || [];
         console.log(matchListData)
         // Find the index of the match to update
-        const matchIndex = matchListData.findIndex(match =>
-          match.opponent.venue === player2.venue &&
-          match.opponent.gender === player2.gender &&
-          match.opponent.score === player2.score &&
-          match.status === 0
+        const matchIndex = matchListData.findIndex(matchList => 
+          matchList.date.seconds == this.match.date.seconds
         )
+        console.log(matchIndex)
 
-        // if (matchIndex !== -1) {
-        //   // Update the status of the match
-        //   matchListData[matchIndex].status = newStatus;
-
-        //   // Update the match list document with the modified array
-        //   await setDoc(matchListDocRef, { matches: matchListData });
-        // }
+        if (matchIndex !== -1) {
+          // Update the status of the match
+          matchListData[matchIndex].status = status;
+          console.log(matchListData[matchIndex])
+          // Update the match list document with the modified array
+          await setDoc(matchListDocRef, { matches: matchListData })
+          this.$emit('close')
+        }
       }
     }
   },

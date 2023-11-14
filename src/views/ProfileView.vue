@@ -41,8 +41,8 @@
       <div class="col-12">
         <div class="p-4 rounded list-wrapper d-flex mb-4">
           <div class="d-flex detail">
-            <p>Persentasi Kemenangan</p>
-            <p class="bold">0%</p>
+            <p>Total Game</p>
+            <p class="bold">0</p>
           </div>
           <div class="detail">
             <input
@@ -250,6 +250,7 @@
           </div>
       </div>
     </div>
+    </div>
 
     <div class="row mx-auto mt-4">
       <div class="col-12">
@@ -276,7 +277,6 @@
         </div>
       </div>
     </div>
-  </div>
   </div>
 </template>
 
@@ -363,7 +363,7 @@ export default {
           phone: this.user.phone,
           dob: this.user.dob,
           age: this.getAge(this.user.dob),
-          photo: this.user.photo,
+          photo: this.user.photo || this.imageProfile,
           gender: this.user.gender,
           experience: this.experience,
           fisik: this.fisik,

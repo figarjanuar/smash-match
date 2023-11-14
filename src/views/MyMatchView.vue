@@ -3,14 +3,14 @@
     <div v-if="!detailData" class="wrapper">
       <div class="row mb-5">
         <div class="col-lg-12">
-          <div @click="detailData = nextMatch" class="widget-next-match">
+          <div class="widget-next-match">
             <div class="widget-title mb-3">
               <h3>Next Match</h3>
             </div>
             <div class="widget-body mb-3">
               <div class="widget-vs">
                 <div class="d-flex align-items-center justify-content-around justify-content-between w-100">
-                  <div class="text-center">
+                  <div @click="detailData = nextMatch" v-if="nextMatch.opponent.photo" class="text-center">
                     <img :src="nextMatch.opponent.photo" alt="Image">
                     <h3 class="mt-3">{{ nextMatch.opponent.name }}</h3>
                   </div>
@@ -18,11 +18,15 @@
               </div>
             </div>
   
-            <div class="text-center widget-vs-contents mb-4">
-              <h5>{{ nextMatch.venue }}</h5>
+            <div @click="detailData = nextMatch" v-if="nextMatch.opponent.photo" class="text-center widget-vs-contents mb-4">
+              <h5>{{ gorMapping(nextMatch.venue) }}</h5>
               <p class="mb-5">
-                <span class="d-block">{{ nextMatch.date }}</span>
+                <span class="d-block">{{ nextMatch.formatedDate }}</span>
               </p>
+            </div>
+
+            <div v-else class="text-center mb-5">
+              <h3>Belum ada pertandingan</h3>
             </div>
           </div>
         </div>
@@ -36,7 +40,7 @@
         </div>
 
         <div v-for="(match, index) in matchHistory" :key="index" class="col-lg-6 mb-4">
-          <div class="p-4 rounded list-wrapper">
+          <div @click="detailData = match" class="p-4 rounded list-wrapper">
             <div class="widget-body">
                 <div class="widget-vs">
                   <div class="d-flex align-items-center justify-content-around justify-content-between w-100">
@@ -49,9 +53,9 @@
               </div>
 
               <div class="text-center">
-                <h5>{{ match.venue }}</h5>
+                <h5>{{ gorMapping(match.venue) }}</h5>
                 <p>
-                  <span class="d-block">{{ match.date }}</span>
+                  <span class="d-block">{{ match.formatedDate }}</span>
                 </p>
               </div>
             
@@ -60,7 +64,7 @@
       </div>
     </div>
 
-    <match-detail v-else :match="detailData" @close="detailData=null"/>
+    <match-detail v-else :match="detailData" :total-game="matchHistory.length" @close="closeDetail()"/>
   </main>
 </template>
 
@@ -90,21 +94,35 @@ export default {
         const matches = docSnap.data().matches
         console.log(docSnap.data())
         this.matchHistory = matches
-          .filter(match => match.status === 1)
+          .filter(match => match.status !== 'berlangsung')
           .map(match => ({
             ...match,
-            date: this.formatDate(match.date)
+            formatedDate: this.formatDate(match.date)
           }))
 
-        this.nextMatch = {
-          ...matches.find(match => match.status === 0),
-          date: this.formatDate(matches.find(match => match.status === 0)?.date)
-        } || {}
+        if(matches.find(match => match.status === 'berlangsung')) {
+          this.nextMatch = {
+            ...matches.find(match => match.status === 'berlangsung'),
+            formatedDate: this.formatDate(matches.find(match => match.status === 'berlangsung')?.date)
+          } || {}
+        }
       }
     },
     formatDate(timestamp) {
       const date = new Date(timestamp?.seconds * 1000 + timestamp?.nanoseconds / 1e6);
-      return new Intl.DateTimeFormat('id-ID', { month: 'long', day: 'numeric', year: 'numeric' }).format(date);
+      return new Intl.DateTimeFormat('id-ID', { month: 'long', day: 'numeric', year: 'numeric' }).format(date)
+    },
+    closeDetail() {
+      this.nextMatch = { opponent: {} }
+      this.getMatchList()
+      this.detailData = null
+    },
+    gorMapping(id) {
+      const gor = {
+        'gor-1': 'GOR Dramaga'
+      }
+
+      return gor[id]
     }
   },
   beforeMount() {
@@ -133,7 +151,7 @@ export default {
     img {
       border-radius: 50%;
       aspect-ratio: 1/1;
-      width: 200px;
+      width: 150px;
     }
   }
 }
@@ -185,7 +203,7 @@ export default {
     width: 100%;
     aspect-ratio: 1/1;
     border-radius: 50%;
-    width: 200px;
+    width: 150px;
     object-fit: cover;
   }
 }

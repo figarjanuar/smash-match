@@ -84,7 +84,7 @@ export default {
                 venue: player1.venue,
                 date: new Date(),
                 opponent: player2,  // Hanya menyimpan data player2
-                status: 0
+                status: 'berlangsung'
               })
 
               await setDoc(matchListDocRef, { matches: matchListData })
