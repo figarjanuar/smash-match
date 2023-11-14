@@ -84,6 +84,18 @@
               <p class="bold">{{ getGender(user.gender) }}</p>
             </div>
           </div>
+          <div class="detail">
+            <input
+              v-if="isEdit"
+              type="number"
+              class="form-control"
+              placeholder="No HP, Ex. 856XXX"
+              v-model="user.phone">
+            <div v-else class="d-flex">
+              <p>No HP</p>
+              <p class="bold">{{ user.phone }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -93,32 +105,6 @@
       <div class="col-12">
         <p class="section">Pengalaman</p>
         <div class="p-4 rounded list-wrapper d-flex mb-4">
-          <div class="detail">
-            <select v-if="isEdit" v-model="experience.howLong" class="form-select">
-              <option value="" selected disabled>Lama Bermain Bulutangkis</option>
-              <option value="1">&lt; 1 Tahun</option>
-              <option value="2">1 - 5 Tahun</option>
-              <option value="3">> 5 Tahun</option>
-            </select>
-            <div v-else class="d-flex">
-              <p>Lama Bermain Bulutangkis</p>
-              <p class="bold">{{ howLongMapping(experience.howLong) }}</p>
-            </div>
-          </div>
-
-          <div class="detail">
-            <input
-              v-if="isEdit"
-              type="number"
-              class="form-control"
-              placeholder="Bermain Dalam Seminggu"
-              v-model="experience.playPerWeek">
-            <div v-else class="d-flex">
-              <p>Bermain Dalam Seminggu</p>
-              <p class="bold">{{ experience.playPerWeek }}</p>
-            </div>
-          </div>
-
           <div class="detail">
             <select v-if="isEdit" v-model="experience.isCompe" class="form-select">
               <option value="" selected disabled>Bermain Secara</option>
@@ -134,36 +120,11 @@
       </div>
     </div>
 
+    <!-- fisik -->
     <div class="row mx-auto mt-4">
       <div class="col-12">
         <p class="section">Fisik</p>
         <div class="p-4 rounded list-wrapper d-flex mb-4">
-          <div class="detail">
-            <input
-              v-if="isEdit"
-              type="number"
-              class="form-control"
-              placeholder="Tinggi Bada (Cm)"
-              v-model="fisik.height">
-            <div v-else class="d-flex">
-              <p>Tinggi Badan</p>
-              <p class="bold">{{ fisik.height }} Cm</p>
-            </div>
-          </div>
-
-          <div class="detail">
-            <input
-              v-if="isEdit"
-              type="number"
-              class="form-control"
-              placeholder="Berat Badan (Cm)"
-              v-model="fisik.weight">
-            <div v-else class="d-flex">
-              <p>Berat Badan</p>
-              <p class="bold">{{ fisik.weight }} Cm</p>
-            </div>
-          </div>
-
           <div class="detail">
             <div v-if="isEdit" class="input-wrapper">
               <label class="form-label">Kekuatan</label>
@@ -198,33 +159,12 @@
         </div>
       </div>
     </div>
-    
+
+    <!-- teknikal -->
     <div class="row mx-auto mt-4">
       <div class="col-12">
         <p class="section">Kemampuan Teknikal</p>
         <div class="p-4 rounded list-wrapper d-flex mb-4">
-          <div class="detail">
-            <div v-if="isEdit" class="input-wrapper">
-              <label class="form-label">Pukulan Forehand</label>
-              <input v-model="technical.forehand" min="0" max="5" type="range" class="form-range">
-            </div>
-            <div v-else class="d-flex">
-              <p>Pukulan Forehand</p>
-              <p class="bold">{{ technical.forehand }}</p>
-            </div>
-          </div>
-
-          <div class="detail">
-            <div v-if="isEdit" class="input-wrapper">
-              <label class="form-label">Pukulan Backhand</label>
-              <input v-model="technical.backhand" min="0" max="5" type="range" class="form-range">
-            </div>
-            <div v-else class="d-flex">
-              <p>Pukulan Backhand</p>
-              <p class="bold">{{ technical.backhand }}</p>
-            </div>
-          </div>
-
           <div class="detail">
             <div v-if="isEdit" class="input-wrapper">
               <label class="form-label">Pukulan Service</label>
@@ -255,17 +195,6 @@
             <div v-else class="d-flex">
               <p>Pukulan Smash</p>
               <p class="bold">{{ technical.smash }}</p>
-            </div>
-          </div>
-
-          <div class="detail">
-            <div v-if="isEdit" class="input-wrapper">
-              <label class="form-label">Pukulan Drop</label>
-              <input v-model="technical.drop" min="0" max="5" type="range" class="form-range">
-            </div>
-            <div v-else class="d-flex">
-              <p>Pukulan Drop</p>
-              <p class="bold">{{ technical.drop }}</p>
             </div>
           </div>
 
@@ -319,40 +248,6 @@
               <p class="bold">{{ equipment.racket }}</p>
             </div>
           </div>
-
-          <div class="detail">
-            <div v-if="isEdit" class="input-wrapper">
-              <label class="form-label">Kualitas Senar</label>
-              <input v-model="equipment.strings" min="0" max="5" type="range" class="form-range">
-            </div>
-            <div v-else class="d-flex">
-              <p>Kualitas Senar</p>
-              <p class="bold">{{ equipment.strings }}</p>
-            </div>
-          </div>
-
-          <div class="detail">
-            <div v-if="isEdit" class="input-wrapper">
-              <label class="form-label">Kualitas Sepatu</label>
-              <input v-model="equipment.shoes" min="0" max="5" type="range" class="form-range">
-            </div>
-            <div v-else class="d-flex">
-              <p>Kualitas Sepatu</p>
-              <p class="bold">{{ equipment.shoes }}</p>
-            </div>
-          </div>
-
-          <div class="detail">
-            <div v-if="isEdit" class="input-wrapper">
-              <label class="form-label">Kualitas Pakaian</label>
-              <input v-model="equipment.shirt" min="0" max="5" type="range" class="form-range">
-            </div>
-            <div v-else class="d-flex">
-              <p>Kualitas Pakaian</p>
-              <p class="bold">{{ equipment.shirt }}</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -382,6 +277,7 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
@@ -398,33 +294,23 @@ export default {
         displayName: '',
       },
       experience: {
-        howLong: '',
-        playPerWeek: '',
         isCompe: ''
       },
       fisik: {
-        height: null,
-        weight: null,
         strength: 0,
         endurance: 0,
         playTime: ''
       },
       technical: {
-        forehand: 0,
-        backhand: 0,
         service: 0,
         ballReturn: 0,
         smash: 0,
-        drop: 0,
         speed: 0,
         accuracy: 0,
         rule: 0
       },
       equipment: {
         racket: 0,
-        strings: 0,
-        shoes: 0,
-        shirt: 0
       },
       achievements: {
         tournaments: false,
@@ -465,15 +351,18 @@ export default {
           technical: this.technical,
           equipment: this.equipment,
           achievements: {
-            tournaments: this.achievements.tournaments ? 1 : 2,
-            club: this.achievements.club ? 1 : 2
+            tournaments: this.achievements.tournaments ? 1 : 0,
+            club: this.achievements.club ? 1 : 0
           },
         }
         const score = sawStore.generateScore(userData)
+        // console.log(score)
 
         await setDoc(userRef, {
           location: this.user.location,
+          phone: this.user.phone,
           dob: this.user.dob,
+          age: this.getAge(this.user.dob),
           photo: this.user.photo,
           gender: this.user.gender,
           experience: this.experience,
@@ -509,6 +398,7 @@ export default {
             location: docSnap.data().location,
             photo: docSnap.data().photo,
             score: docSnap.data().score,
+            phone: docSnap.data().phone,
           }
           this.experience = docSnap.data().experience
           this.fisik = docSnap.data().fisik
@@ -526,10 +416,10 @@ export default {
       const birthdate = new Date(date)
       const currentDate = new Date()
 
-      const ageInMilliseconds = currentDate - birthdate;
+      const ageInMilliseconds = currentDate - birthdate
 
       const ageInYears = ageInMilliseconds / (1000 * 60 * 60 * 24 * 365.25)
-      return Math.floor(ageInYears);
+      return Math.floor(ageInYears) || null
     },
     getGender(genderId) {
       const data = {

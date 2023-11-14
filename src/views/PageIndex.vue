@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { doc, onSnapshot, runTransaction, setDoc } from 'firebase/firestore'
+import { doc, getDoc, onSnapshot, runTransaction, setDoc } from 'firebase/firestore'
 import { useMatchStore } from '../stores/match'
 import IconListMatch from '../components/icons/IconListMatch.vue'
 import IconFindMatch from '../components/icons/IconFindMatch.vue'
@@ -34,62 +34,72 @@ export default {
     }
   },
   methods: {
-    initMatch() {
-      const loginStore = useLoginStore();
-      const queueDocRef = doc(this.$db, "match-queue", 'gor-1');
+    async initMatch() {
+      const loginStore = useLoginStore()
+      const queueDocRef = doc(this.$db, "match-queue", 'gor-1')
+      const matchListDocRef = doc(this.$db, "match-list", loginStore.userData.user.uid)
+      const matchStore = useMatchStore()
 
+      // Hanya mendengarkan snapshot jika sedang mencari pertandingan
       onSnapshot(queueDocRef, async (snapshot) => {
-        const source = snapshot.metadata.hasPendingWrites ? "Local" : "Server";
-        const data = snapshot.data();
+        const source = snapshot.metadata.hasPendingWrites ? "Local" : "Server"
+        const data = snapshot.data()
 
+        // Hanya melanjutkan jika sedang mencari pertandingan
         if (data) {
-          const players = Object.keys(data);
-          const player1 = data[loginStore.userData.user.uid];
-          players.splice(players.indexOf(loginStore.userData.user.uid), 1);
+          const player1 = data[loginStore.userData.user.uid]
+          const players = Object.keys(data).filter(player => player !== loginStore.userData.user.uid)
 
           for (const player of players) {
-            const diffScore = Math.abs(player1.score - data[player].score);
+            const player2 = data[player]
 
-            if (diffScore <= 2 && player1.gender === data[player].gender) {
-              console.log(`Starting match between ${player1} and ${player}`);
-              const matchStore = useMatchStore()
+            const diffScore = Math.abs(player1?.score - player2?.score)
+
+            if (
+              diffScore <= 20 &&
+              player1.gender === player2.gender &&
+              player1.venue === player2.venue
+            ) {
+              console.log(`Starting match between ${player1} and ${player2}`)
 
               await runTransaction(this.$db, async (transaction) => {
-                const docSnap = await transaction.get(queueDocRef, { snapshot: true });
+                const docSnap = await transaction.get(queueDocRef);
+
+                // Re-check the data as it might have been modified by other transactions
                 const updatedData = docSnap.data();
 
                 if (updatedData) {
-                  delete updatedData[player1];
+                  // Remove players from the queue
+                  delete updatedData[loginStore.userData.user.uid];
                   delete updatedData[player];
                   transaction.set(queueDocRef, updatedData);
                 }
               })
 
-              await setDoc(doc(this.$db, "match-list", loginStore.userData.user.uid), {
+              const matchListSnap = await getDoc(matchListDocRef)
+              const matchListData = matchListSnap.exists() ? matchListSnap.data().matches || [] : []
+
+              // Menyimpan data player2 saja sebagai opponent
+              matchListData.push({
                 venue: player1.venue,
                 date: new Date(),
-                opponent: data[player],
+                opponent: player2,  // Hanya menyimpan data player2
                 status: 0
               })
 
-              matchStore.isFinding(false);
+              await setDoc(matchListDocRef, { matches: matchListData })
+
+              matchStore.isFinding(false)
+              this.$router.push({ name: 'my-match' })
+              return // Hentikan pencarian setelah menemukan lawan
             }
           }
         }
-        console.log(source, " data: ", data);
-      });
-    },
-    async sortStringsAsc(a, b) {
-      const result = a.localeCompare(b);
 
-      if (result < 0) {
-        return [a, b];
-      } else if (result > 0) {
-        return [b, a];
-      } else {
-        return [a, b]; // or [b, a], since they are equal
-      }
+        console.log(source, " data: ", data)
+      })
     }
+
   },
   mounted() {
     this.initMatch()

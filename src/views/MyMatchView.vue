@@ -1,9 +1,9 @@
 <template>
   <main>
-    <div class="wrapper">
+    <div v-if="!detailData" class="wrapper">
       <div class="row mb-5">
         <div class="col-lg-12">
-          <div @click="this.$router.push({ name: 'match-detail', params: {matchId: 12} })" class="widget-next-match">
+          <div @click="detailData = nextMatch" class="widget-next-match">
             <div class="widget-title mb-3">
               <h3>Next Match</h3>
             </div>
@@ -11,21 +11,18 @@
               <div class="widget-vs">
                 <div class="d-flex align-items-center justify-content-around justify-content-between w-100">
                   <div class="text-center">
-                    <img src="https://picsum.photos/id/64/200" alt="Image">
-                    <h3>M Satya</h3>
+                    <img :src="nextMatch.opponent.photo" alt="Image">
+                    <h3 class="mt-3">{{ nextMatch.opponent.name }}</h3>
                   </div>
                 </div>
               </div>
             </div>
   
             <div class="text-center widget-vs-contents mb-4">
-              <h5>PB Dramaga</h5>
+              <h5>{{ nextMatch.venue }}</h5>
               <p class="mb-5">
-                <span class="d-block">15 Desember 2023</span>
-                <span class="d-block">9:30</span>
+                <span class="d-block">{{ nextMatch.date }}</span>
               </p>
-  
-              <div id="date-countdown2" class="pb-1"><span class="countdown-block"><span class="label">524</span> weeks </span><span class="countdown-block"><span class="label">06</span> days </span><span class="countdown-block"><span class="label">08</span> hr </span><span class="countdown-block"><span class="label">35</span> min </span><span class="countdown-block"><span class="label">33</span> sec</span></div>
             </div>
           </div>
         </div>
@@ -38,24 +35,23 @@
           </div>
         </div>
 
-        <div v-for="i in 10" :key="i" class="col-lg-6 mb-4">
+        <div v-for="(match, index) in matchHistory" :key="index" class="col-lg-6 mb-4">
           <div class="p-4 rounded list-wrapper">
             <div class="widget-body">
                 <div class="widget-vs">
                   <div class="d-flex align-items-center justify-content-around justify-content-between w-100">
                     <div class="team-1 text-center">
-                      <img src="https://picsum.photos/id/64/200" alt="Image">
-                      <h3>Jajang</h3>
+                      <img class="mb-3" :src="match.opponent.photo" alt="Image">
+                      <h3>{{ match.opponent.name }}</h3>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div class="text-center">
-                <h5>World Cup League</h5>
+                <h5>{{ match.venue }}</h5>
                 <p>
-                  <span class="d-block">December 20th, 2020</span>
-                  <span class="d-block">9:30 AM GMT+0</span>
+                  <span class="d-block">{{ match.date }}</span>
                 </p>
               </div>
             
@@ -63,8 +59,59 @@
         </div>
       </div>
     </div>
+
+    <match-detail v-else :match="detailData" @close="detailData=null"/>
   </main>
 </template>
+
+<script>
+import { doc, getDoc } from 'firebase/firestore'
+import { useLoginStore } from '../stores/login'
+import MatchDetail from './MatchDetail.vue'
+export default {
+  components: { MatchDetail },
+  name: 'my-match',
+  data() {
+    return {
+      matchHistory: [],
+      nextMatch: {
+        opponent: {}
+      },
+      detailData: null
+    }
+  },
+  methods: {
+    async getMatchList() {
+      const userStore = useLoginStore()
+      const docRef = doc(this.$db, "match-list", userStore.userData.user.uid)
+      const docSnap = await getDoc(docRef)
+
+      if (docSnap.exists()) {
+        const matches = docSnap.data().matches
+        console.log(docSnap.data())
+        this.matchHistory = matches
+          .filter(match => match.status === 1)
+          .map(match => ({
+            ...match,
+            date: this.formatDate(match.date)
+          }))
+
+        this.nextMatch = {
+          ...matches.find(match => match.status === 0),
+          date: this.formatDate(matches.find(match => match.status === 0)?.date)
+        } || {}
+      }
+    },
+    formatDate(timestamp) {
+      const date = new Date(timestamp?.seconds * 1000 + timestamp?.nanoseconds / 1e6);
+      return new Intl.DateTimeFormat('id-ID', { month: 'long', day: 'numeric', year: 'numeric' }).format(date);
+    }
+  },
+  beforeMount() {
+    this.getMatchList()
+  }
+}
+</script>
 
 <style lang="scss" scoped>
 .widget-next-match {
@@ -118,6 +165,28 @@
     width: 150px;
     aspect-ratio: 1/1;
     border-radius: 50%;
+  }
+}
+
+.widget-vs {
+  img {
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.list-wrapper {
+  background: rgba(255, 255, 255, 0.05) !important;
+
+  img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    width: 200px;
+    object-fit: cover;
   }
 }
 </style>

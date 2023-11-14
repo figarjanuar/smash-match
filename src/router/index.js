@@ -19,8 +19,11 @@ const router = createRouter({
           component: () => import('../views/MyMatchView.vue')
         },
         {
-          path: 'match-detail/:matchId',
+          path: 'match-detail',
           name: 'match-detail',
+          props: {
+            match: {}
+          },
           component: () => import('../views/MatchDetail.vue')
         },
         {

@@ -6,9 +6,8 @@
         <div class="mb-3">
           <label for="location" class="form-label">Pilih Tempat</label>
           <select v-model="selectedVenue" class="form-select" id="location">
-            <option value="gor-1">Gor 1</option>
-            <option value="gor3">Gor 1</option>
-            <option value="gor3">Gor 1</option>
+            <option value="gor-1">GOR Dramaga</option>
+            <option value="gor-2">GOR Sleman</option>
           </select>
         </div>
         
@@ -22,7 +21,7 @@
 </template>
 
 <script>
-import { doc, getDoc, runTransaction, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useLoginStore } from '../stores/login';
 import { useMatchStore } from "../stores/match";
 
@@ -62,6 +61,9 @@ export default {
           this.user = {
             gender: docSnap.data().gender,
             score: docSnap.data().score,
+            name: docSnap.data().displayName,
+            photo: docSnap.data().photo,
+            phone: docSnap.data().phone,
             venue: this.selectedVenue
           }
         } else {
