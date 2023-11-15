@@ -39,7 +39,7 @@ export default {
       try {
         matchStore.isFinding(true)
         const loginStore = useLoginStore()
-
+        console.log(loginStore.userData)
         await this.getUserByUserId(loginStore.userData.user.uid)
 
         const matchRef = doc(this.$db, "match-queue", this.selectedVenue)
@@ -49,7 +49,7 @@ export default {
 
       } catch (e) {
         matchStore.isFinding(false)
-        console.error("Error creating or updating document: ", e);
+        console.error("Error creating or updating document: ", e)
       }
     },
     async getUserByUserId(userId) {
@@ -67,10 +67,10 @@ export default {
             venue: this.selectedVenue
           }
         } else {
-          console.log("No such document!");
+          alert("No such document!")
         }
       } catch (e) {
-        console.error("Error getting user document: ", e);
+        alert("Error getting user document: "+e)
       }
     }
   },

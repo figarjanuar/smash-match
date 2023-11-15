@@ -78,7 +78,6 @@ export const useSawStore = defineStore('saw', {
           categoryScore += parseInt(playerData[category][criterion])/categoryCriteria[criterion].max * categoryCriteria[criterion].weight;
         }
         totalScore[category] = categoryScore;
-        console.log(category, categoryScore)
       }
 
       let playerTotalScore = 0;

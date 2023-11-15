@@ -56,11 +56,10 @@ export default {
             const diffScore = Math.abs(player1?.score - player2?.score)
 
             if (
-              diffScore <= 20 &&
+              diffScore <= 10 &&
               player1.gender === player2.gender &&
               player1.venue === player2.venue
             ) {
-              console.log(`Starting match between ${player1} and ${player2}`)
 
               await runTransaction(this.$db, async (transaction) => {
                 const docSnap = await transaction.get(queueDocRef);
@@ -95,8 +94,6 @@ export default {
             }
           }
         }
-
-        console.log(source, " data: ", data)
       })
     }
 

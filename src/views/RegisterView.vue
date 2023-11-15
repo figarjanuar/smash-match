@@ -47,9 +47,7 @@ export default {
     register() {
       const auth = getAuth();
       createUserWithEmailAndPassword(auth, this.email, this.pass)
-        .then((userCredential) => {
-          console.log(userCredential)
-
+        .then(() => {
           updateProfile(auth.currentUser, {
             displayName: this.name
           })
@@ -57,7 +55,7 @@ export default {
           this.$router.push({ name: 'profile' })
         })
         .catch((error) => {
-          console.log(error)
+          alert(error)
         })
     },
   }

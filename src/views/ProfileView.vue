@@ -267,7 +267,7 @@
           </div>
           <div class="detail">
             <div class="d-flex">
-              <p>Bergambung dalam Club</p>
+              <p>Bergabung dalam Club</p>
               <input
                 :disabled="!isEdit"
                 class="form-check-input"
@@ -356,7 +356,6 @@ export default {
           },
         }
         const score = sawStore.generateScore(userData)
-        // console.log(score)
 
         await setDoc(userRef, {
           location: this.user.location,
@@ -406,10 +405,10 @@ export default {
           this.equipment = docSnap.data().equipment
           this.achievements = docSnap.data().achievements
         } else {
-          console.log("No such document!");
+          alert("No such document!")
         }
       } catch (e) {
-        console.error("Error getting user document: ", e);
+        alert("Error getting user document: "+e)
       }
     },
     getAge(date) {

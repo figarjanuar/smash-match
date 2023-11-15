@@ -92,7 +92,7 @@ export default {
 
       if (docSnap.exists()) {
         const matches = docSnap.data().matches
-        console.log(docSnap.data())
+
         this.matchHistory = matches
           .filter(match => match.status !== 'berlangsung')
           .map(match => ({

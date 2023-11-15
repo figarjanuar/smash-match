@@ -2,13 +2,13 @@
   <div class="row mb-5">
     <div class="col-12">
       <card-component
-        style="margin-bottom: 50px;"
+        style="margin-bottom: 50px; position: relative;"
         :title="'Detail Match'"
         :name="match.opponent.name"
         :image="match.opponent.photo"
       >
       <div class="close" @click="$emit('close')">x</div>
-      <div class="alert alert-warning p-2 m-3">
+      <div v-if="match.status === 'berlangsung'" class="alert alert-warning p-2 m-3">
         <small class="">Silahkan kontak pemain lawan untuk menentukan jam pertandingan</small>
       </div>
 
@@ -120,18 +120,12 @@ export default {
 
       if (matchListSnap.exists()) {
         const matchListData = matchListSnap.data().matches || [];
-        console.log(matchListData)
-        // Find the index of the match to update
         const matchIndex = matchListData.findIndex(matchList => 
           matchList.date.seconds == this.match.date.seconds
         )
-        console.log(matchIndex)
 
         if (matchIndex !== -1) {
-          // Update the status of the match
           matchListData[matchIndex].status = status;
-          console.log(matchListData[matchIndex])
-          // Update the match list document with the modified array
           await setDoc(matchListDocRef, { matches: matchListData })
           this.$emit('close')
         }
@@ -150,8 +144,9 @@ export default {
 <style lang="scss" scoped>
 .close {
   position: absolute;
-  top: 27px;
-  right: 27px;
+  top: 13px;
+  right: 20px;
+  cursor: pointer;
 }
 
 .d-flex {
