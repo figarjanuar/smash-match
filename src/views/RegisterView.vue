@@ -32,6 +32,7 @@
 
 <script>
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
+import { useLoginStore } from '../stores/login';
 
 export default {
   data() {
@@ -45,9 +46,12 @@ export default {
   },
   methods: {
     register() {
-      const auth = getAuth();
+      const auth = getAuth()
+      const store = useLoginStore()
       createUserWithEmailAndPassword(auth, this.email, this.pass)
-        .then(() => {
+        .then((response) => {
+          console.log(response)
+          store.logginIn(response)
           updateProfile(auth.currentUser, {
             displayName: this.name
           })

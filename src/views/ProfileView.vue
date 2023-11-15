@@ -404,8 +404,6 @@ export default {
           this.technical = docSnap.data().technical
           this.equipment = docSnap.data().equipment
           this.achievements = docSnap.data().achievements
-        } else {
-          alert("No such document!")
         }
       } catch (e) {
         alert("Error getting user document: "+e)
