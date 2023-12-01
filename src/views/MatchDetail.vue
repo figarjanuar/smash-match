@@ -16,10 +16,6 @@
         <h5 class="mb-3 text-center">Profile Pemain</h5>
 
         <div class="d-flex">
-          <div class="desc">Total Game</div>
-          <div class="val">{{ totalGame }}</div>
-        </div>
-        <div class="d-flex">
           <div class="desc">Usia</div>
           <div class="val">21</div>
         </div>

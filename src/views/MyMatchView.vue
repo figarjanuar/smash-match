@@ -61,7 +61,7 @@
       </div>
     </div>
 
-    <match-detail v-else :match="detailData" :total-game="matchHistory.length" @close="closeDetail()"/>
+    <match-detail v-else :match="detailData" @close="closeDetail()"/>
   </main>
 </template>
 
