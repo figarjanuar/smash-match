@@ -47,7 +47,8 @@ export default {
     img {
       border-radius: 50%;
       aspect-ratio: 1/1;
-      width: 120px;
+      width: 20%;
+      object-fit: cover;
     }
   }
 }

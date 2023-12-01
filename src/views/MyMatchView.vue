@@ -39,25 +39,22 @@
           </div>
         </div>
 
-        <div v-for="(match, index) in matchHistory" :key="index" class="col-lg-6 mb-4">
-          <div @click="detailData = match" class="p-4 rounded list-wrapper">
+        <div v-for="(match, index) in matchHistory" :key="index" class="col-lg-12 mb-2">
+          <div @click="detailData = match" class="p-4 rounded list-wrapper d-flex align-items-center">
+            <img :src="match.opponent.photo" alt="Image">
             <div class="widget-body">
-                <div class="widget-vs">
-                  <div class="d-flex align-items-center justify-content-around justify-content-between w-100">
-                    <div class="team-1 text-center">
-                      <img class="mb-3" :src="match.opponent.photo" alt="Image">
-                      <h3>{{ match.opponent.name }}</h3>
-                    </div>
+              <div class="widget-vs">
+                <div class="d-flex">
+                  <div class="team-1 text-center">
+                    <h5>{{ match.opponent.name }}</h5>
                   </div>
                 </div>
               </div>
 
-              <div class="text-center">
-                <h5>{{ gorMapping(match.venue) }}</h5>
-                <p>
-                  <span class="d-block">{{ match.formatedDate }}</span>
-                </p>
+              <div>
+                <p style="font-size: 12px;" class="m-0">{{ gorMapping(match.venue) }}, {{ match.formatedDate }}</p>
               </div>
+            </div>
             
           </div>
         </div>
@@ -177,7 +174,9 @@ export default {
 }
 
 .list-wrapper {
+  cursor: pointer;
   background: rgba(255, 255, 255, 0.05) !important;
+  gap: 20px;
 
   img {
     width: 150px;
@@ -200,10 +199,9 @@ export default {
   background: rgba(255, 255, 255, 0.05) !important;
 
   img {
-    width: 100%;
     aspect-ratio: 1/1;
     border-radius: 50%;
-    width: 150px;
+    width: 10%;
     object-fit: cover;
   }
 }
