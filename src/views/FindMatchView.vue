@@ -15,42 +15,132 @@
           <span v-if="isFindind" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
           <span v-else>Find Match</span>
         </button>
+
+        <div v-if="showAlert" class="alert alert-warning mt-5">
+          Pertandingan belum ditemukan, silahkan cari kembali
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { useLoginStore } from '../stores/login';
 import { useMatchStore } from "../stores/match";
+import axios from "axios";
 
 export default {
   data() {
     return {
       selectedVenue: 'gor-1',
       matchData: [],
-      user: {}
+      user: {},
+      interval: null,
+      startTime: null,
+      maxTime: 30000,
+      showAlert: false
     };
   },
   methods: {
     async findMatch() {
       const matchStore = useMatchStore()
+      this.showAlert = false
       try {
         matchStore.isFinding(true)
         const loginStore = useLoginStore()
         console.log(loginStore.userData)
         await this.getUserByUserId(loginStore.userData.user.uid)
 
-        const matchRef = doc(this.$db, "match-queue", this.selectedVenue)
-        await setDoc(matchRef, {
-          [loginStore.userData.user.uid]: { ...this.user }
-        }, { merge: true })
+        const matchRef = doc(this.$db, "match-queue", loginStore.userData.user.uid)
+        await setDoc(matchRef, { ...this.user }, { merge: true })
+
+        let data = JSON.stringify({
+          "id": loginStore.userData.user.uid,
+          "mmr": Math.round(this.user.score)
+        });
+
+        let config = {
+          method: 'post',
+          maxBodyLength: Infinity,
+          url: 'https://smapi-qyyf.onrender.com/start',
+          headers: { 
+            'Content-Type': 'application/json'
+          },
+          data : data
+        };
+
+        await axios.request(config)
+          .catch(() => {
+            matchStore.isFinding(false)
+          });
+
+        this.startTime = Date.now()
+        this.checkMatchStatus()
 
       } catch (e) {
         matchStore.isFinding(false)
         console.error("Error creating or updating document: ", e)
       }
+    },
+    checkMatchStatus() {
+      const matchStore = useMatchStore();
+      console.log(matchStore.isFindMatch)
+      if(matchStore.isFindMatch) {
+        const checkStatus = () => {
+          axios.post('https://smapi-qyyf.onrender.com/status', {
+            id: useLoginStore().userData.user.uid
+          })
+            .then(async (res) => {
+              console.log(res.data.competitor_id !== undefined);
+              if(res.data.competitor_id) {
+                clearInterval(this.interval)
+                matchStore.isFinding(false)
+                this.stopFinding(useLoginStore().userData.user.uid)
+
+                const docRef = doc(this.$db, "match-queue", res.data.competitor_id)
+                const docSnap = await getDoc(docRef)
+                console.log(res.data.competitor_id, docSnap.data(), docSnap.data().competitor_id)
+
+                const matchListDocRef = doc(this.$db, "match-list", useLoginStore().userData.user.uid)
+                const matchListSnap = await getDoc(matchListDocRef)
+                const matchListData = matchListSnap.exists() ? matchListSnap.data().matches || [] : [];
+
+                matchListData.push({
+                  venue: this.selectedVenue,
+                  date: new Date(),
+                  opponent: docSnap.data(),
+                  status: 'berlangsung',
+                });
+
+                await setDoc(matchListDocRef, { matches: matchListData })
+                await deleteDoc(doc(this.$db, "match-queue", res.data.competitor_id))
+
+                this.$router.push({ name: 'my-match' })
+              }
+
+              if(this.startTime == null) {
+                this.startTime = Date.now()
+              }
+            })
+
+          if(Date.now() - this.startTime >= this.maxTime) {
+            clearInterval(this.interval)
+            matchStore.isFinding(false)
+            this.showAlert = true
+          }
+        }
+        
+        this.startTime = Date.now()
+        this.interval = setInterval(checkStatus, 5000)
+        
+      } else {
+        clearInterval(this.interval)
+        matchStore.isFinding(false)
+      }
+    },
+    stopFinding(id) {
+      axios.post('https://smapi-qyyf.onrender.com/update', {id: id})
     },
     async getUserByUserId(userId) {
       try {
@@ -79,6 +169,9 @@ export default {
       const matchStore = useMatchStore()
       return matchStore.isFindMatch
     }
+  },
+  mounted() {
+    this.checkMatchStatus()
   }
 }
 </script>

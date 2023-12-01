@@ -29,7 +29,10 @@
 
               <div class="ms-2 edit">
                 <button v-if="!isEdit" class="btn btn-success" @click="isEdit=true">Edit</button>
-                <button v-else class="btn btn-danger" @click="createOrUpdateUser">Simpan</button>
+                <button v-else class="btn btn-danger" @click="createOrUpdateUser">
+                  <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  <span v-else>Simpan</span>
+                </button>
               </div>
             </div>
           </div>
@@ -42,7 +45,7 @@
         <div class="p-4 rounded list-wrapper d-flex mb-4">
           <div class="d-flex detail">
             <p>Total Game</p>
-            <p class="bold">0</p>
+            <p class="bold">{{ user.totalMatch }}</p>
           </div>
           <div class="detail">
             <input
@@ -107,12 +110,12 @@
         <div class="p-4 rounded list-wrapper d-flex mb-4">
           <div class="detail">
             <select v-if="isEdit" v-model="experience.isCompe" class="form-select">
-              <option value="" selected disabled>Bermain Secara</option>
-              <option value="0">Hiburan</option>
+              <option value="" selected disabled>Bermain Untuk</option>
+              <option value="0">Olahraga</option>
               <option value="1">Kompetitif</option>
             </select>
             <div v-else class="d-flex">
-              <p>Bermain Secara</p>
+              <p>Bermain Untuk</p>
               <p class="bold">{{ compeMapping(experience.isCompe) }}</p>
             </div>
           </div>
@@ -290,6 +293,7 @@ export default {
   data() {
     return {
       uploadValue: 0,
+      isLoading: false,
       user: {
         displayName: '',
       },
@@ -342,6 +346,7 @@ export default {
     },
     async createOrUpdateUser() {
       try {
+        this.isLoading = true
         const userRef = doc(this.$db, "users", this.user.uid)
 
         const sawStore = useSawStore()
@@ -380,7 +385,9 @@ export default {
         })
 
         this.isEdit = false
+        this.isLoading = false
       } catch (e) {
+        this.isLoading = false
         console.error("Error creating or updating document: ", e);
       }
     },
@@ -404,6 +411,16 @@ export default {
           this.technical = docSnap.data().technical
           this.equipment = docSnap.data().equipment
           this.achievements = docSnap.data().achievements
+        }
+
+        const matchRef = doc(this.$db, "match-list", userId)
+        const matchSnap = await getDoc(matchRef)
+
+        if(matchSnap.exists()) {
+          this.user = {
+            ...this.user,
+            totalMatch: matchSnap.data().matches.length
+          }
         }
       } catch (e) {
         alert("Error getting user document: "+e)
@@ -436,7 +453,7 @@ export default {
     },
     compeMapping(isCompe) {
       const data = {
-        0: 'Hiburan',
+        0: 'Olahraga',
         1: 'Kompetitif'
       }
       return data[isCompe]

@@ -12,7 +12,7 @@
       </router-link>
     </div>
 
-    <div class="container mt-3">
+    <div class="container col-lg-5 col-12 mt-3">
       <router-view :key="$route.fullPath"></router-view>
     </div>
   </main>
@@ -30,7 +30,8 @@ export default {
   components: { IconListMatch, IconFindMatch, IconProfile },
   data() {
     return {
-      a: 'a'
+      maxTime: 30000,
+      matchStore: useMatchStore().isFindMatch
     }
   },
   methods: {
@@ -98,10 +99,31 @@ export default {
           }
         }
       });
+    },
+    checkMatchStatus() {
+      const matchStore = useMatchStore();
+      console.log('wkwkwk')
+      if(matchStore.isFindMatch) {
+
+        const checkStatus = () => {
+
+          // make API call  
+          console.log('wkwkwk')
+          if(Date.now() - this.startTime >= this.maxTime) {
+            clearInterval(this.interval)  
+          }
+        }
+        
+        this.startTime = Date.now()
+        this.interval = setInterval(checkStatus, 5000)
+        
+      } else {
+        clearInterval(this.interval)
+      }
     }
   },
   mounted() {
-    this.initMatch()
+    // this.checkMatchStatus()
   }
 }
 </script>
