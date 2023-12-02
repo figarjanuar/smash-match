@@ -82,8 +82,10 @@ export const useSawStore = defineStore('saw', {
 
       let playerTotalScore = 0;
       for (const category in totalScore) {
+        console.log(category, totalScore[category]);
         playerTotalScore += totalScore[category];
       }
+      console.log(playerTotalScore*100);
 
       return playerTotalScore*100;
     }

@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { getAuth, signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from 'firebase/auth'; // Import necessary Firebase Authentication functions
+import { getAuth, signInWithEmailAndPassword, setPersistence, browserSessionPersistence, browserLocalPersistence } from 'firebase/auth'; // Import necessary Firebase Authentication functions
 import { useLoginStore } from '../stores/login'
 
 export default {
@@ -48,9 +48,7 @@ export default {
       this.loading = true;
 
       const auth = getAuth();
-      
-      // Set persistence to LOCAL before attempting to sign in
-      setPersistence(auth, browserSessionPersistence)
+      setPersistence(auth, browserLocalPersistence)
         .then(() => {
           // Now that persistence is set, proceed with sign in
           signInWithEmailAndPassword(auth, this.email, this.password)

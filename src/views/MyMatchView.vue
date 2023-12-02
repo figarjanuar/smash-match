@@ -1,5 +1,8 @@
 <template>
-  <main>
+  <div v-if="isLoading" class="spinner-border page-loader" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+  <main v-else>
     <div v-if="!detailData" class="wrapper">
       <div class="row mb-5">
         <div class="col-lg-12">
@@ -78,7 +81,8 @@ export default {
       nextMatch: {
         opponent: {}
       },
-      detailData: null
+      detailData: null,
+      isLoading: true
     }
   },
   methods: {
@@ -104,6 +108,8 @@ export default {
           } || {}
         }
       }
+
+      this.isLoading = false
     },
     formatDate(timestamp) {
       const date = new Date(timestamp?.seconds * 1000 + timestamp?.nanoseconds / 1e6);

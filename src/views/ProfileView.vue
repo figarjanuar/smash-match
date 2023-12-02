@@ -1,5 +1,8 @@
 <template>
-  <div class="row no-gutters">
+  <div v-if="isPageLoading" class="spinner-border page-loader" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+  <div v-else class="row no-gutters">
     <div class="col-lg-6 mx-auto p-0">
       <div class="post-entry">
         <a href="#">
@@ -47,53 +50,68 @@
             <p>Total Game</p>
             <p class="bold">{{ user.totalMatch }}</p>
           </div>
+          <!-- kota -->
           <div class="detail">
-            <input
-              v-if="isEdit"
-              type="text"
-              class="form-control"
-              placeholder="Location"
-              v-model="user.location">
+            <div v-if="isEdit" class="edit-data">
+              <label>Kota</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Kota"
+                v-model="user.location">
+            </div>
             <div v-else class="d-flex">
-              <p>Lokasi</p>
+              <p>Kota</p>
               <p class="bold">{{ user.location }}</p>
             </div>
           </div>
+          <!-- tanggal lahit -->
           <div class="detail">
-            <input
-              v-if="isEdit"
-              type="date"
-              class="form-control"
-              placeholder="Date of birth"
-              v-model="user.dob">
+            <div v-if="isEdit" class="edit-data">
+              <label>Tanggal Lahir</label>
+              <input
+                type="date"
+                class="form-control"
+                placeholder="Date of birth"
+                v-model="user.dob">
+            </div>
             <div v-else class="d-flex">
               <p>Tanggal Lahir</p>
               <p class="bold">{{ user.dob }}</p>
             </div>
           </div>
+          <!-- usia -->
           <div class="detail">
             <div class="d-flex">
               <p>Usia</p>
               <p class="bold">{{ getAge(user.dob) }}</p>
             </div>
           </div>
+          <!-- jenis kelamin -->
           <div class="detail">
-            <select v-if="isEdit" v-model="user.gender" class="form-select">
-              <option value="1">Laki - laki</option>
-              <option value="2">Perempuan</option>
-            </select>
+            <div v-if="isEdit" class="edit-data">
+              <label>Jenis Kelamin</label>
+              <select v-model="user.gender" class="form-select">
+                <option value="1">Laki - laki</option>
+                <option value="2">Perempuan</option>
+              </select>
+            </div>
             <div v-else class="d-flex">
               <p>Jenis Kelamin</p>
               <p class="bold">{{ getGender(user.gender) }}</p>
             </div>
           </div>
+          <!-- no hp -->
           <div class="detail">
-            <input
-              v-if="isEdit"
-              type="number"
-              class="form-control"
-              placeholder="No HP, Ex. 856XXX"
-              v-model="user.phone">
+            <div v-if="isEdit" class="edit-data">
+              <label>No HP</label>
+              <input
+                v-if="isEdit"
+                type="number"
+                class="form-control"
+                placeholder="Ex. 856XXX"
+                v-model="user.phone">
+            </div>
             <div v-else class="d-flex">
               <p>No HP</p>
               <p class="bold">{{ user.phone }}</p>
@@ -280,6 +298,12 @@
         </div>
       </div>
     </div>
+
+    <div v-if="!isEdit" class="row row mx-auto mb-5">
+      <div class="col-12">
+        <button @click="doLogout()" class="btn btn-danger" style="width: 100%;">Logout</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -292,6 +316,7 @@ import { useSawStore } from "../stores/saw";
 export default {
   data() {
     return {
+      isPageLoading: true,
       uploadValue: 0,
       isLoading: false,
       user: {
@@ -362,7 +387,7 @@ export default {
         }
         const score = sawStore.generateScore(userData)
 
-        await setDoc(userRef, {
+        const saveData = {
           location: this.user.location,
           phone: this.user.phone,
           dob: this.user.dob,
@@ -377,7 +402,14 @@ export default {
           score,
           isFindMatch: false,
           displayName: this.user.displayName
-        }, { merge: true })
+        }
+        console.log(saveData)
+        if(isNaN(score )) {
+          alert('Harap Lengkapi Data!')
+          this.isLoading = false
+          return
+        }
+        await setDoc(userRef, saveData, { merge: true })
 
         const auth = getAuth()
         updateProfile(auth.currentUser, {
@@ -388,6 +420,7 @@ export default {
         this.isLoading = false
       } catch (e) {
         this.isLoading = false
+        alert('Harap Lengkapi Data!')
         console.error("Error creating or updating document: ", e);
       }
     },
@@ -424,6 +457,8 @@ export default {
         }
       } catch (e) {
         alert("Error getting user document: "+e)
+      } finally {
+        this.isPageLoading = false
       }
     },
     getAge(date) {
@@ -457,6 +492,10 @@ export default {
         1: 'Kompetitif'
       }
       return data[isCompe]
+    },
+    doLogout() {
+      localStorage.clear()
+      this.$router.push({ name: 'login' })
     }
   },
   mounted() {
@@ -471,6 +510,23 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .logout-wrapper {
+    position: absolute;
+    z-index: 9;
+    top: 0;
+    background: rgba(0,0,0, .3);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    p {
+      margin: 0;
+      text-align: end;
+      padding: 10px;
+    }
+  }
+
   .author {
     justify-content: space-between;
   }
@@ -517,11 +573,11 @@ export default {
       justify-content: space-between;
       text-transform: capitalize;
   
-      p:nth-child(1) {
+      p:nth-child(1), label {
         opacity: 0.5;
       }
   
-      p {
+      p, label {
         margin: 0;
         font-size: 14px;
       }
