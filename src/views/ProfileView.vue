@@ -149,7 +149,10 @@
           <div class="detail">
             <div v-if="isEdit" class="input-wrapper">
               <label class="form-label">Kekuatan</label>
-              <input v-model="fisik.strength" min="0" max="5" type="range" class="form-range">
+              <div class="d-flex" style="gap: 10px;">
+                <input v-model="fisik.strength" min="0" max="5" type="range" class="form-range">
+                <span>{{ fisik.strength }}</span>
+              </div>
             </div>
             <div v-else class="d-flex">
               <p>Kekuatan Fisik</p>
@@ -160,7 +163,10 @@
           <div class="detail">
             <div v-if="isEdit" class="input-wrapper">
               <label for="customRange1" class="form-label">Daya Tahan</label>
-              <input v-model="fisik.endurance" min="0" max="5" type="range" class="form-range">
+              <div class="d-flex" style="gap: 10px;">
+                <input v-model="fisik.endurance" min="0" max="5" type="range" class="form-range">
+                <span>{{ fisik.endurance }}</span>
+              </div>
             </div>
             <div v-else class="d-flex">
               <p>Daya Tahan</p>
@@ -189,7 +195,10 @@
           <div class="detail">
             <div v-if="isEdit" class="input-wrapper">
               <label class="form-label">Pukulan Service</label>
-              <input v-model="technical.service" min="0" max="5" type="range" class="form-range">
+              <div class="d-flex" style="gap: 10px;">
+                <input v-model="technical.service" min="0" max="5" type="range" class="form-range">
+                <span>{{ technical.service }}</span>
+              </div>
             </div>
             <div v-else class="d-flex">
               <p>Pukulan Service</p>
@@ -200,7 +209,10 @@
           <div class="detail">
             <div v-if="isEdit" class="input-wrapper">
               <label class="form-label">Pengembalian Bola</label>
-              <input v-model="technical.ballReturn" min="0" max="5" type="range" class="form-range">
+              <div class="d-flex" style="gap: 10px;">
+                <input v-model="technical.ballReturn" min="0" max="5" type="range" class="form-range">
+                <span>{{ technical.ballReturn }}</span>
+              </div>
             </div>
             <div v-else class="d-flex">
               <p>Pengembalian Bola</p>
@@ -211,7 +223,10 @@
           <div class="detail">
             <div v-if="isEdit" class="input-wrapper">
               <label class="form-label">Pukulan Smash</label>
-              <input v-model="technical.smash" min="0" max="5" type="range" class="form-range">
+              <div class="d-flex" style="gap: 10px;">
+                <input v-model="technical.smash" min="0" max="5" type="range" class="form-range">
+                <span>{{ technical.smash }}</span>
+              </div>
             </div>
             <div v-else class="d-flex">
               <p>Pukulan Smash</p>
@@ -222,7 +237,10 @@
           <div class="detail">
             <div v-if="isEdit" class="input-wrapper">
               <label class="form-label">Refleks dan Kecepatan</label>
-              <input v-model="technical.speed" min="0" max="5" type="range" class="form-range">
+              <div class="d-flex" style="gap: 10px;">
+                <input v-model="technical.speed" min="0" max="5" type="range" class="form-range">
+                <span>{{ technical.speed }}</span>
+              </div>
             </div>
             <div v-else class="d-flex">
               <p>Refleks dan Kecepatan</p>
@@ -233,7 +251,10 @@
           <div class="detail">
             <div v-if="isEdit" class="input-wrapper">
               <label class="form-label">Akurasi</label>
-              <input v-model="technical.accuracy" min="0" max="5" type="range" class="form-range">
+              <div class="d-flex" style="gap: 10px;">
+                <input v-model="technical.accuracy" min="0" max="5" type="range" class="form-range">
+                <span>{{ technical.accuracy }}</span>
+              </div>
             </div>
             <div v-else class="d-flex">
               <p>Akurasi</p>
@@ -244,7 +265,10 @@
           <div class="detail">
             <div v-if="isEdit" class="input-wrapper">
               <label class="form-label">Pemahaman Peraturan</label>
-              <input v-model="technical.rule" min="0" max="5" type="range" class="form-range">
+              <div class="d-flex" style="gap: 10px;">
+                <input v-model="technical.rule" min="0" max="5" type="range" class="form-range">
+                <span>{{ technical.rule }}</span>
+              </div>
             </div>
             <div v-else class="d-flex">
               <p>Pemahaman Peraturan</p>
@@ -262,7 +286,10 @@
           <div class="detail">
             <div v-if="isEdit" class="input-wrapper">
               <label class="form-label">Kualitas Raket</label>
-              <input v-model="equipment.racket" min="0" max="5" type="range" class="form-range">
+              <div class="d-flex" style="gap: 10px;">
+                <input v-model="equipment.racket" min="0" max="5" type="range" class="form-range">
+                <span>{{ equipment.racket }}</span>
+              </div>
             </div>
             <div v-else class="d-flex">
               <p>Kualitas Raket</p>
