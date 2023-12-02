@@ -2,13 +2,13 @@
   <div v-if="isLoading" class="spinner-border page-loader" role="status">
     <span class="visually-hidden">Loading...</span>
   </div>
-  <main v-else>
+  <main v-else class="mb-5">
     <div v-if="!detailData" class="wrapper">
       <div class="row mb-5">
         <div class="col-lg-12">
           <div class="widget-next-match">
             <div class="widget-title mb-3">
-              <h3>Next Match</h3>
+              <h3 @click="goToNextMatch()" :class="[nextMatch.opponent.photo ? 'underline' : '']">Next Match</h3>
             </div>
             <div class="widget-body mb-3">
               <div class="widget-vs">
@@ -58,7 +58,12 @@
                 <p style="font-size: 12px;" class="m-0">{{ gorMapping(match.venue) }}, {{ match.formatedDate }}</p>
               </div>
             </div>
-            
+            <p
+              class="m-0 text-uppercase bold"
+              :class="[
+                match.status == 'win' ? 'text-success' :
+                match.status == 'lose' ? 'text-danger' : '']">
+                {{ match.status }}</p>
           </div>
         </div>
       </div>
@@ -126,6 +131,11 @@ export default {
       }
 
       return gor[id]
+    },
+    goToNextMatch() {
+      if(this.nextMatch.opponent.photo) {
+        this.detailData = this.nextMatch
+      }
     }
   },
   beforeMount() {
@@ -135,6 +145,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.underline {
+  text-decoration: underline;
+}
+
 .widget-next-match {
   border: 1px solid rgba(255, 255, 255, 0.1);
 

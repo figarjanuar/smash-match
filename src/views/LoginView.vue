@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { getAuth, signInWithEmailAndPassword, setPersistence, browserSessionPersistence, browserLocalPersistence } from 'firebase/auth'; // Import necessary Firebase Authentication functions
+import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { useLoginStore } from '../stores/login'
 
 export default {
