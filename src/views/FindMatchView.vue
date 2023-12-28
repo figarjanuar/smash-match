@@ -7,7 +7,6 @@
           <label for="location" class="form-label">Pilih Tempat</label>
           <select v-model="selectedVenue" class="form-select" id="location">
             <option value="gor-1">GOR Dramaga</option>
-            <option value="gor-2">GOR Sleman</option>
           </select>
         </div>
         
